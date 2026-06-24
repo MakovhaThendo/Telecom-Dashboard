@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: telecom-backend
+    env: node
+    region: oregon
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && node server.js
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: MONGODB_URI
+        sync: false   # We'll set this manually in Render dashboard
+    plan: free
