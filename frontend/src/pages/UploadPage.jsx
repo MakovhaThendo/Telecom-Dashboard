@@ -67,12 +67,19 @@ const UploadPage = () => {
       const result = await uploadCSV(file);
       setProgress(100);
       
-      setIsSuccess(true);
-      setMessage(`${result.message} (${result.count} records uploaded)`);
-      
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 2000);
+      // Check if the upload was successful
+      if (result.success) {
+        setIsSuccess(true);
+        setMessage(`${result.message} (${result.count} records uploaded)`);
+        
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 2000);
+      } else {
+        // Upload failed with error message from API
+        setIsSuccess(false);
+        setMessage(`Upload failed: ${result.message}`);
+      }
     } catch (err) {
       console.error(err);
       setIsSuccess(false);
@@ -141,7 +148,6 @@ const UploadPage = () => {
           <section className="intro-section">
             <div className="intro-wrapper">
               <div className="intro-header">
-                <span className="section-badge">Data Import</span>
                 <h1 className="page-title">Upload Network Performance Data</h1>
                 <p className="page-description">
                   Import your CSV files to visualize key performance indicators, 
