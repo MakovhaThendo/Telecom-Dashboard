@@ -14,7 +14,7 @@
   color: #1a1a1a;
 }
 
-/* Header - Telkom Inspired */
+/* Header - Clean Dark */
 .app-header {
   background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 50%, #0d1f3c 100%);
   padding: 0 2rem;
@@ -22,7 +22,6 @@
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  border-bottom: 3px solid #2563eb;
 }
 
 .header-container {
@@ -83,41 +82,31 @@
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding: 2.5rem 2rem;
+  padding: 2rem 2rem;
 }
 
 .content-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3rem;
-  align-items: start;
+  align-items: stretch;
 }
 
 /* Intro Section */
 .intro-section {
-  padding-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .intro-wrapper {
-  position: sticky;
-  top: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .intro-header {
-  margin-bottom: 2rem;
-}
-
-.section-badge {
-  display: inline-block;
-  background: rgba(37, 99, 235, 0.1);
-  color: #2563eb;
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 0.3rem 0.75rem;
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1.75rem;
 }
 
 .page-title {
@@ -140,15 +129,14 @@
 .feature-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: 0.75rem;
 }
 
 .feature-item {
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 1rem 1.25rem;
+  padding: 0.9rem 1.1rem;
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
@@ -162,14 +150,14 @@
 
 .feature-check {
   flex-shrink: 0;
-  margin-top: 0.15rem;
+  margin-top: 0.1rem;
 }
 
 .feature-content h4 {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: #0a1628;
-  margin: 0 0 0.15rem 0;
+  margin: 0 0 0.1rem 0;
 }
 
 .feature-content p {
@@ -179,9 +167,11 @@
   line-height: 1.4;
 }
 
-/* Upload Section */
+/* Upload Section - Aligned with Left */
 .upload-section {
-  padding-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .upload-card {
@@ -190,6 +180,9 @@
   border-radius: 12px;
   padding: 2.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .upload-heading {
@@ -219,6 +212,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  flex-shrink: 0;
 }
 
 .upload-box:hover {
@@ -451,6 +445,7 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 1.5rem;
+  flex-shrink: 0;
 }
 
 .requirements h4 {
@@ -535,10 +530,7 @@
   .content-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
-  }
-
-  .intro-wrapper {
-    position: static;
+    align-items: start;
   }
 
   .page-title {
@@ -547,6 +539,10 @@
 
   .page-description {
     max-width: 100%;
+  }
+
+  .upload-card {
+    flex: none;
   }
 }
 
