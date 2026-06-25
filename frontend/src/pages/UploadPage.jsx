@@ -116,87 +116,56 @@ const UploadPage = () => {
 
   return (
     <div className="upload-page">
-      {/* Navigation */}
-      <nav className="app-nav">
-        <div className="nav-container">
-          <div className="nav-brand">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
-              <path d="M4 4h16v16H4z" />
-              <path d="M8 16l4-4 4 4" />
-              <path d="M12 12v4" />
-              <path d="M16 8h.01" />
-            </svg>
-            <span className="brand-text">Telecom Analytics</span>
+      <header className="app-header">
+        <div className="header-container">
+          <div className="header-brand">
+            <span className="brand-icon">◆</span>
+            <span className="brand-name">Telecom Analytics</span>
           </div>
-          <div className="nav-links">
-            <a href="#" className="nav-link active">Upload</a>
-            <a href="#" className="nav-link">Dashboard</a>
-          </div>
+          <nav className="header-nav">
+            <a href="#" className="nav-item active">Upload</a>
+            <a href="#" className="nav-item">Dashboard</a>
+          </nav>
         </div>
-      </nav>
+      </header>
 
-      {/* Main Content */}
-      <main className="upload-main">
-        <div className="upload-grid">
-          {/* Left Column - Introduction */}
-          <div className="intro-section">
-            <div className="intro-content">
-              <div className="intro-badge">Network Performance Analytics</div>
-              <h1 className="intro-title">Upload Your Telecom Data</h1>
-              <p className="intro-description">
+      <main className="main-content">
+        <div className="content-grid">
+          <section className="intro-section">
+            <div className="intro-wrapper">
+              <span className="section-badge">Network Performance Platform</span>
+              <h1 className="page-title">Upload Telecom Data</h1>
+              <p className="page-description">
                 Import network performance metrics to visualize KPIs, identify 
-                underperforming regions, and make data-driven decisions. 
-                Our platform analyzes latency, throughput, and signal quality 
-                across your entire network infrastructure.
+                underperforming regions, and make data-driven decisions.
               </p>
-              <div className="intro-features">
-                <div className="feature-item">
-                  <div className="feature-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </div>
-                  <span>Real-time network monitoring</span>
+              <div className="feature-grid">
+                <div className="feature-card">
+                  <span className="feature-label">Real-time monitoring</span>
                 </div>
-                <div className="feature-item">
-                  <div className="feature-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </div>
-                  <span>KPI dashboards and analytics</span>
+                <div className="feature-card">
+                  <span className="feature-label">KPI dashboards</span>
                 </div>
-                <div className="feature-item">
-                  <div className="feature-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </div>
-                  <span>Region and base station comparison</span>
+                <div className="feature-card">
+                  <span className="feature-label">Region comparison</span>
                 </div>
-                <div className="feature-item">
-                  <div className="feature-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </div>
-                  <span>Exportable reports and insights</span>
+                <div className="feature-card">
+                  <span className="feature-label">Exportable reports</span>
                 </div>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* Right Column - Upload Form */}
-          <div className="upload-section">
-            <div className="upload-form-container">
-              <h2 className="upload-title">Import CSV Data</h2>
-              <p className="upload-subtitle">
-                Upload a CSV file with your network performance metrics
+          <section className="upload-section">
+            <div className="upload-card">
+              <h2 className="upload-heading">Import CSV Data</h2>
+              <p className="upload-subheading">
+                Upload a CSV file containing network performance metrics
               </p>
 
               <form onSubmit={handleUpload}>
                 <div 
-                  className={`drop-zone ${dragActive ? 'drag-active' : ''} ${file ? 'file-selected' : ''}`}
+                  className={`upload-box ${dragActive ? 'drag-active' : ''} ${file ? 'has-file' : ''}`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
                   onDragOver={handleDrag}
@@ -212,28 +181,21 @@ const UploadPage = () => {
                   />
                   
                   {!file ? (
-                    <div className="drop-content">
-                      <div className="drop-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="1.5">
-                          <path d="M12 4v12m0 0l-3-3m3 3l3-3M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
-                        </svg>
-                      </div>
-                      <div className="drop-text">
-                        <h4>Drag and drop your CSV file here</h4>
-                        <p>or click to browse files</p>
-                      </div>
-                      <span className="drop-format">Supported format: CSV</span>
+                    <div className="upload-placeholder">
+                      <p className="placeholder-main">Drag and drop your CSV file here</p>
+                      <p className="placeholder-sub">or click to browse files</p>
+                      <span className="placeholder-format">Supported format: CSV</span>
                     </div>
                   ) : (
-                    <div className="file-preview">
-                      <div className="file-info">
-                        <div className="file-type">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+                    <div className="file-display">
+                      <div className="file-row">
+                        <div className="file-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
                             <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                             <path d="M14 2v6h6" />
                           </svg>
                         </div>
-                        <div className="file-details">
+                        <div className="file-meta">
                           <span className="file-name">{file.name}</span>
                           <span className="file-size">{formatFileSize(file.size)}</span>
                         </div>
@@ -252,11 +214,11 @@ const UploadPage = () => {
                         </button>
                       </div>
                       {uploading && (
-                        <div className="upload-progress">
+                        <div className="progress-container">
                           <div className="progress-track">
-                            <div className="progress-bar" style={{ width: `${progress}%` }} />
+                            <div className="progress-fill" style={{ width: `${progress}%` }} />
                           </div>
-                          <span className="progress-label">{progress}%</span>
+                          <span className="progress-text">{progress}%</span>
                         </div>
                       )}
                     </div>
@@ -264,7 +226,7 @@ const UploadPage = () => {
                 </div>
 
                 {message && (
-                  <div className={`form-message ${isSuccess ? 'success' : 'error'}`}>
+                  <div className={`form-feedback ${isSuccess ? 'feedback-success' : 'feedback-error'}`}>
                     {message}
                   </div>
                 )}
@@ -297,8 +259,8 @@ const UploadPage = () => {
                 </div>
               </form>
 
-              <div className="upload-requirements">
-                <div className="req-section">
+              <div className="upload-footer">
+                <div className="requirements">
                   <h4>File Requirements</h4>
                   <ul>
                     <li>CSV format with headers</li>
@@ -316,15 +278,14 @@ const UploadPage = () => {
                 </button>
               </div>
             </div>
-          </div>
+          </section>
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="app-footer">
         <div className="footer-container">
-          <span className="footer-text">© 2026 Telecom Analytics. All rights reserved.</span>
-          <span className="footer-text">Version 1.0.0</span>
+          <span>© 2026 Telecom Analytics</span>
+          <span>Version 1.0.0</span>
         </div>
       </footer>
     </div>
