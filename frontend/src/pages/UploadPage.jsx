@@ -115,141 +115,218 @@ const UploadPage = () => {
   };
 
   return (
-    <div className="upload-container">
-      <div className="upload-card">
-        <div className="upload-header">
-          <div className="header-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+    <div className="upload-page">
+      {/* Navigation */}
+      <nav className="app-nav">
+        <div className="nav-container">
+          <div className="nav-brand">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
               <path d="M4 4h16v16H4z" />
               <path d="M8 16l4-4 4 4" />
               <path d="M12 12v4" />
               <path d="M16 8h.01" />
             </svg>
+            <span className="brand-text">Telecom Analytics</span>
           </div>
-          <h1>Upload Telecom Data</h1>
-          <p className="subtitle">Import network performance metrics from a CSV file to begin analysis</p>
+          <div className="nav-links">
+            <a href="#" className="nav-link active">Upload</a>
+            <a href="#" className="nav-link">Dashboard</a>
+          </div>
         </div>
+      </nav>
 
-        <form onSubmit={handleUpload}>
-          <div 
-            className={`drop-zone ${dragActive ? 'drag-active' : ''} ${file ? 'file-selected' : ''}`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv"
-              onChange={handleFileChange}
-              style={{ display: 'none' }}
-            />
-            
-            {!file ? (
-              <div className="drop-content">
-                <div className="upload-icon">
-                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="1.5">
-                    <path d="M12 4v12m0 0l-3-3m3 3l3-3M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
-                  </svg>
-                </div>
-                <h3>Drag and drop your CSV file here</h3>
-                <p className="drop-hint">or click to browse files</p>
-                <span className="file-format">Supported format: CSV</span>
-              </div>
-            ) : (
-              <div className="file-preview">
-                <div className="file-info">
-                  <span className="file-icon">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
-                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                      <path d="M14 2v6h6" />
+      {/* Main Content */}
+      <main className="upload-main">
+        <div className="upload-grid">
+          {/* Left Column - Introduction */}
+          <div className="intro-section">
+            <div className="intro-content">
+              <div className="intro-badge">Network Performance Analytics</div>
+              <h1 className="intro-title">Upload Your Telecom Data</h1>
+              <p className="intro-description">
+                Import network performance metrics to visualize KPIs, identify 
+                underperforming regions, and make data-driven decisions. 
+                Our platform analyzes latency, throughput, and signal quality 
+                across your entire network infrastructure.
+              </p>
+              <div className="intro-features">
+                <div className="feature-item">
+                  <div className="feature-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+                      <polyline points="20 6 9 17 4 12" />
                     </svg>
-                  </span>
-                  <div className="file-details">
-                    <strong>{file.name}</strong>
-                    <span>{formatFileSize(file.size)}</span>
                   </div>
-                  <button 
-                    type="button" 
-                    className="remove-file"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeFile();
-                    }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </button>
+                  <span>Real-time network monitoring</span>
                 </div>
-                {uploading && (
-                  <div className="progress-container">
-                    <div className="progress-bar">
-                      <div 
-                        className="progress-fill" 
-                        style={{ width: `${progress}%` }}
-                      />
+                <div className="feature-item">
+                  <div className="feature-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <span>KPI dashboards and analytics</span>
+                </div>
+                <div className="feature-item">
+                  <div className="feature-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <span>Region and base station comparison</span>
+                </div>
+                <div className="feature-item">
+                  <div className="feature-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <span>Exportable reports and insights</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Upload Form */}
+          <div className="upload-section">
+            <div className="upload-form-container">
+              <h2 className="upload-title">Import CSV Data</h2>
+              <p className="upload-subtitle">
+                Upload a CSV file with your network performance metrics
+              </p>
+
+              <form onSubmit={handleUpload}>
+                <div 
+                  className={`drop-zone ${dragActive ? 'drag-active' : ''} ${file ? 'file-selected' : ''}`}
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".csv"
+                    onChange={handleFileChange}
+                    style={{ display: 'none' }}
+                  />
+                  
+                  {!file ? (
+                    <div className="drop-content">
+                      <div className="drop-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="1.5">
+                          <path d="M12 4v12m0 0l-3-3m3 3l3-3M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+                        </svg>
+                      </div>
+                      <div className="drop-text">
+                        <h4>Drag and drop your CSV file here</h4>
+                        <p>or click to browse files</p>
+                      </div>
+                      <span className="drop-format">Supported format: CSV</span>
                     </div>
-                    <span className="progress-text">{progress}%</span>
+                  ) : (
+                    <div className="file-preview">
+                      <div className="file-info">
+                        <div className="file-type">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                            <path d="M14 2v6h6" />
+                          </svg>
+                        </div>
+                        <div className="file-details">
+                          <span className="file-name">{file.name}</span>
+                          <span className="file-size">{formatFileSize(file.size)}</span>
+                        </div>
+                        <button 
+                          type="button" 
+                          className="file-remove"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFile();
+                          }}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
+                        </button>
+                      </div>
+                      {uploading && (
+                        <div className="upload-progress">
+                          <div className="progress-track">
+                            <div className="progress-bar" style={{ width: `${progress}%` }} />
+                          </div>
+                          <span className="progress-label">{progress}%</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {message && (
+                  <div className={`form-message ${isSuccess ? 'success' : 'error'}`}>
+                    {message}
                   </div>
                 )}
+
+                <div className="form-actions">
+                  <button
+                    type="submit"
+                    disabled={!file || uploading}
+                    className={`btn-primary ${uploading ? 'btn-loading' : ''}`}
+                  >
+                    {uploading ? (
+                      <>
+                        <span className="btn-spinner"></span>
+                        Uploading...
+                      </>
+                    ) : (
+                      'Upload Data'
+                    )}
+                  </button>
+                  
+                  {file && !uploading && (
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={removeFile}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </form>
+
+              <div className="upload-requirements">
+                <div className="req-section">
+                  <h4>File Requirements</h4>
+                  <ul>
+                    <li>CSV format with headers</li>
+                    <li>Required columns: region, baseStationId, timestamp, latencyMs, throughputMbps, signalStrengthDbm</li>
+                    <li>Maximum file size: 10MB</li>
+                  </ul>
+                </div>
+                <button onClick={downloadTemplate} className="template-link">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Download Sample Template
+                </button>
               </div>
-            )}
-          </div>
-
-          {message && (
-            <div className={`message ${isSuccess ? 'success' : 'error'}`}>
-              {message}
             </div>
-          )}
-
-          <div className="upload-actions">
-            <button
-              type="submit"
-              disabled={!file || uploading}
-              className={`upload-btn ${uploading ? 'uploading' : ''}`}
-            >
-              {uploading ? (
-                <>
-                  <span className="spinner"></span>
-                  Uploading...
-                </>
-              ) : (
-                'Upload Data'
-              )}
-            </button>
-            
-            {file && !uploading && (
-              <button
-                type="button"
-                className="clear-btn"
-                onClick={removeFile}
-              >
-                Clear
-              </button>
-            )}
-          </div>
-        </form>
-
-        <div className="upload-footer">
-          <div className="requirements">
-            <h4>File Requirements</h4>
-            <ul>
-              <li>CSV format with headers</li>
-              <li>Columns: region, baseStationId, timestamp, latencyMs, throughputMbps, signalStrengthDbm</li>
-              <li>Maximum file size: 10MB</li>
-            </ul>
-          </div>
-          <div className="sample-link">
-            <button onClick={downloadTemplate} className="template-btn">
-              Download Sample Template
-            </button>
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="app-footer">
+        <div className="footer-container">
+          <span className="footer-text">© 2026 Telecom Analytics. All rights reserved.</span>
+          <span className="footer-text">Version 1.0.0</span>
+        </div>
+      </footer>
     </div>
   );
 };
