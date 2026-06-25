@@ -6,6 +6,7 @@ import './UploadPage.css';
 const UploadPage = () => {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // NEW: prevent double uploads
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -52,11 +53,19 @@ const UploadPage = () => {
 
   const handleUpload = async (e) => {
     e.preventDefault();
+
+    // NEW: Prevent double submission
+    if (isSubmitting || uploading) {
+      console.log('⏳ Upload already in progress');
+      return;
+    }
+
     if (!file) {
       setMessage('Please select a file first.');
       return;
     }
 
+    setIsSubmitting(true); // NEW
     setUploading(true);
     setMessage('');
     setIsSuccess(false);
@@ -87,6 +96,7 @@ const UploadPage = () => {
       setProgress(0);
     } finally {
       setUploading(false);
+      setIsSubmitting(false); // NEW
     }
   };
 
@@ -286,7 +296,7 @@ const UploadPage = () => {
                 <div className="form-actions">
                   <button
                     type="submit"
-                    disabled={!file || uploading}
+                    disabled={!file || uploading || isSubmitting} // NEW: added isSubmitting
                     className={`btn-primary ${uploading ? 'btn-loading' : ''}`}
                   >
                     {uploading ? (
