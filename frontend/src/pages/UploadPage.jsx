@@ -6,13 +6,14 @@ import './UploadPage.css';
 const UploadPage = () => {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); // NEW: prevent double uploads
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [progress, setProgress] = useState(0);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const uploadIdRef = useRef(null); // Track unique upload ID
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -54,7 +55,7 @@ const UploadPage = () => {
   const handleUpload = async (e) => {
     e.preventDefault();
 
-    // NEW: Prevent double submission
+    // Prevent multiple submissions
     if (isSubmitting || uploading) {
       console.log('⏳ Upload already in progress');
       return;
@@ -65,7 +66,11 @@ const UploadPage = () => {
       return;
     }
 
-    setIsSubmitting(true); // NEW
+    // Generate a unique ID for this upload
+    const uploadId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    uploadIdRef.current = uploadId;
+
+    setIsSubmitting(true);
     setUploading(true);
     setMessage('');
     setIsSuccess(false);
@@ -73,19 +78,26 @@ const UploadPage = () => {
 
     try {
       setProgress(30);
-      const result = await uploadCSV(file);
+      const result = await uploadCSV(file, uploadId);
       setProgress(100);
       
       // Check if the upload was successful
       if (result.success) {
-        setIsSuccess(true);
-        setMessage(`${result.message} (${result.count} records uploaded)`);
-        
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 2000);
+        if (result.count > 0) {
+          setIsSuccess(true);
+          setMessage(`${result.message} (${result.count} records uploaded)`);
+          
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 2000);
+        } else if (result.message === 'Duplicate upload skipped') {
+          setIsSuccess(false);
+          setMessage('⚠️ This file was already uploaded. Please wait a moment and try again.');
+        } else {
+          setIsSuccess(false);
+          setMessage(`Upload failed: ${result.message}`);
+        }
       } else {
-        // Upload failed with error message from API
         setIsSuccess(false);
         setMessage(`Upload failed: ${result.message}`);
       }
@@ -96,7 +108,11 @@ const UploadPage = () => {
       setProgress(0);
     } finally {
       setUploading(false);
-      setIsSubmitting(false); // NEW
+      setIsSubmitting(false);
+      // Reset upload ID after a delay
+      setTimeout(() => {
+        uploadIdRef.current = null;
+      }, 1000);
     }
   };
 
@@ -105,6 +121,7 @@ const UploadPage = () => {
     setMessage('');
     setIsSuccess(false);
     setProgress(0);
+    uploadIdRef.current = null;
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -296,7 +313,7 @@ const UploadPage = () => {
                 <div className="form-actions">
                   <button
                     type="submit"
-                    disabled={!file || uploading || isSubmitting} // NEW: added isSubmitting
+                    disabled={!file || uploading || isSubmitting}
                     className={`btn-primary ${uploading ? 'btn-loading' : ''}`}
                   >
                     {uploading ? (

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// HARDCODED FOR PRODUCTION - Points to your Render backend
+// Hardcoded for production - points to your Render backend
 const API_URL = 'https://telecom-dashboard-4ge2.onrender.com/api';
 
 const api = axios.create({
@@ -10,8 +10,25 @@ const api = axios.create({
   },
 });
 
-// Upload CSV - with proper error handling
-export const uploadCSV = async (file) => {
+// Track in-flight uploads
+const pendingUploads = new Map();
+
+// Upload CSV with deduplication
+export const uploadCSV = async (file, uploadId) => {
+  // Check if this upload is already in progress
+  const fileKey = `${file.name}-${file.size}`;
+  if (pendingUploads.has(fileKey)) {
+    console.log('⏳ Upload already in progress, skipping...');
+    return {
+      success: false,
+      message: 'Upload already in progress',
+      count: 0,
+    };
+  }
+
+  // Mark this upload as in progress
+  pendingUploads.set(fileKey, true);
+
   try {
     const formData = new FormData();
     formData.append('file', file);
@@ -24,6 +41,9 @@ export const uploadCSV = async (file) => {
 
     console.log('✅ Upload response:', response.data);
 
+    // Clear the pending flag after successful upload
+    pendingUploads.delete(fileKey);
+
     return {
       success: true,
       message: response.data.message || 'Upload successful',
@@ -32,6 +52,9 @@ export const uploadCSV = async (file) => {
     };
   } catch (error) {
     console.error('❌ Upload error:', error);
+
+    // Clear the pending flag on error
+    pendingUploads.delete(fileKey);
 
     const errorMessage = error.response?.data?.error || error.message || 'Upload failed';
 
