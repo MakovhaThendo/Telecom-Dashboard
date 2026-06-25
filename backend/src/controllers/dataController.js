@@ -1,12 +1,29 @@
 const NetworkData = require('../models/NetworkData');
 const parseCSV = require('../utils/csvParser');
 
+// Track recent uploads to prevent duplicates
+const uploadHistory = new Map();
+
 // Upload and store CSV data
 exports.uploadCSV = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
+
+    // Check for duplicate upload (same file name and size within 5 seconds)
+    const fileKey = `${req.file.originalname}-${req.file.size}`;
+    const lastUpload = uploadHistory.get(fileKey);
+    const now = Date.now();
+    
+    if (lastUpload && (now - lastUpload < 5000)) {
+      console.log('⏳ Duplicate upload detected, skipping...');
+      return res.status(200).json({ 
+        message: 'Duplicate upload skipped', 
+        count: 0 
+      });
+    }
+    uploadHistory.set(fileKey, now);
 
     console.log('📁 File received:', req.file.originalname);
     console.log('📊 File size:', req.file.size);
@@ -29,7 +46,7 @@ exports.uploadCSV = async (req, res) => {
       signalStrengthDbm: parseFloat(row.signalStrengthDbm || row.signal_strength_dbm || row.SignalStrength)
     }));
 
-    // ✅ NEW: Filter out rows with missing required fields
+    // Filter out rows with missing required fields
     const validData = mappedData.filter(item => 
       item.region && 
       item.baseStationId && 
