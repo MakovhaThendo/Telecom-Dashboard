@@ -1,5 +1,0 @@
-{
-  "projects": {
-    "default": "telecom-dashboard-25883"
-  }
-}
