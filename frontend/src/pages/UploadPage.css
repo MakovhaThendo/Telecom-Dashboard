@@ -7,22 +7,22 @@
 
 .upload-page {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background: #f5f6f8;
+  background: #f0f2f5;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   color: #1a1a1a;
 }
 
-/* Header */
+/* Header - Telkom Inspired */
 .app-header {
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 50%, #0d1f3c 100%);
   padding: 0 2rem;
-  height: 64px;
+  height: 72px;
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  border-bottom: 3px solid #2563eb;
 }
 
 .header-container {
@@ -41,16 +41,16 @@
 }
 
 .brand-icon {
-  color: #2563eb;
-  font-size: 1.25rem;
-  font-weight: 700;
+  color: #60a5fa;
+  display: flex;
+  align-items: center;
 }
 
 .brand-name {
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
-  color: #1a1a1a;
-  letter-spacing: -0.01em;
+  color: #ffffff;
+  letter-spacing: 0.5px;
 }
 
 .header-nav {
@@ -59,7 +59,7 @@
 }
 
 .nav-item {
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.6);
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
@@ -69,12 +69,12 @@
 }
 
 .nav-item:hover {
-  color: #1a1a1a;
+  color: #ffffff;
 }
 
 .nav-item.active {
-  color: #2563eb;
-  border-bottom-color: #2563eb;
+  color: #ffffff;
+  border-bottom-color: #60a5fa;
 }
 
 /* Main Content */
@@ -83,7 +83,7 @@
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2.5rem 2rem;
 }
 
 .content-grid {
@@ -95,7 +95,7 @@
 
 /* Intro Section */
 .intro-section {
-  padding-top: 1rem;
+  padding-top: 0.5rem;
 }
 
 .intro-wrapper {
@@ -103,70 +103,99 @@
   top: 2rem;
 }
 
+.intro-header {
+  margin-bottom: 2rem;
+}
+
 .section-badge {
   display: inline-block;
-  background: #eff6ff;
+  background: rgba(37, 99, 235, 0.1);
   color: #2563eb;
   font-size: 0.7rem;
   font-weight: 600;
-  padding: 0.25rem 0.75rem;
-  border-radius: 3px;
+  padding: 0.3rem 0.75rem;
+  border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .page-title {
-  font-size: 2.25rem;
+  font-size: 2rem;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #0a1628;
   line-height: 1.2;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   letter-spacing: -0.02em;
 }
 
 .page-description {
   font-size: 1rem;
   color: #4b5563;
-  line-height: 1.6;
-  margin-bottom: 2rem;
+  line-height: 1.7;
+  max-width: 90%;
 }
 
+/* Feature Grid */
 .feature-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
-.feature-card {
+.feature-item {
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
 }
 
-.feature-label {
-  font-size: 0.8rem;
-  color: #374151;
-  font-weight: 500;
+.feature-item:hover {
+  border-color: #2563eb;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+}
+
+.feature-check {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.feature-content h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0a1628;
+  margin: 0 0 0.15rem 0;
+}
+
+.feature-content p {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
 }
 
 /* Upload Section */
 .upload-section {
-  padding-top: 1rem;
+  padding-top: 0.5rem;
 }
 
 .upload-card {
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 2rem;
+  border-radius: 12px;
+  padding: 2.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .upload-heading {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #0a1628;
   margin-bottom: 0.25rem;
 }
 
@@ -176,9 +205,9 @@
   margin-bottom: 1.5rem;
 }
 
-/* Upload Box - Solid with Black Border */
+/* Upload Box */
 .upload-box {
-  border: 2px solid #1a1a1a;
+  border: 2px solid #d1d5db;
   border-radius: 8px;
   padding: 2rem;
   text-align: center;
@@ -193,12 +222,13 @@
 }
 
 .upload-box:hover {
-  background: #f5f6f8;
+  border-color: #2563eb;
+  background: #f8faff;
 }
 
 .upload-box.drag-active {
-  background: #eff6ff;
   border-color: #2563eb;
+  background: #eff6ff;
 }
 
 .upload-box.has-file {
@@ -227,7 +257,7 @@
   display: inline-block;
   background: #f3f4f6;
   padding: 0.15rem 0.75rem;
-  border-radius: 3px;
+  border-radius: 4px;
   font-size: 0.7rem;
   color: #6b7280;
   font-weight: 500;
@@ -244,7 +274,7 @@
   gap: 0.75rem;
   padding: 0.5rem 0.75rem;
   background: #f9fafb;
-  border-radius: 4px;
+  border-radius: 6px;
   border: 1px solid #e5e7eb;
 }
 
@@ -299,7 +329,7 @@
 .progress-track {
   flex: 1;
   background: #e5e7eb;
-  border-radius: 2px;
+  border-radius: 4px;
   height: 4px;
   overflow: hidden;
 }
@@ -307,7 +337,7 @@
 .progress-fill {
   height: 100%;
   background: #2563eb;
-  border-radius: 2px;
+  border-radius: 4px;
   transition: width 0.3s ease;
 }
 
@@ -323,7 +353,7 @@
 .form-feedback {
   margin-top: 0.75rem;
   padding: 0.6rem 0.75rem;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.85rem;
   text-align: left;
 }
@@ -350,7 +380,7 @@
 .btn-primary {
   padding: 0.5rem 1.75rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -362,7 +392,7 @@
   gap: 0.5rem;
   flex: 1;
   justify-content: center;
-  min-height: 40px;
+  min-height: 44px;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -397,14 +427,14 @@
 .btn-secondary {
   padding: 0.5rem 1.25rem;
   border: 1px solid #d1d5db;
-  border-radius: 4px;
+  border-radius: 6px;
   background: #ffffff;
   color: #374151;
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 0.875rem;
   font-weight: 500;
-  min-height: 40px;
+  min-height: 44px;
 }
 
 .btn-secondary:hover {
@@ -444,14 +474,14 @@
   padding: 0.1rem 0;
   padding-left: 0.75rem;
   position: relative;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .requirements li::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 0.45rem;
+  top: 0.5rem;
   width: 3px;
   height: 3px;
   background: #2563eb;
@@ -514,16 +544,20 @@
   .page-title {
     font-size: 1.75rem;
   }
+
+  .page-description {
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 640px) {
   .app-header {
     padding: 0 1rem;
-    height: 56px;
+    height: 60px;
   }
 
   .brand-name {
-    font-size: 0.875rem;
+    font-size: 0.9rem;
   }
 
   .header-nav {
@@ -552,7 +586,7 @@
   }
 
   .feature-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 
   .form-actions {

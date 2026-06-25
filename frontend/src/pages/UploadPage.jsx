@@ -119,8 +119,15 @@ const UploadPage = () => {
       <header className="app-header">
         <div className="header-container">
           <div className="header-brand">
-            <span className="brand-icon">◆</span>
-            <span className="brand-name">Telecom Analytics</span>
+            <span className="brand-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 4h16v16H4z" />
+                <path d="M8 16l4-4 4 4" />
+                <path d="M12 12v4" />
+                <path d="M16 8h.01" />
+              </svg>
+            </span>
+            <span className="brand-name">Network Analytics</span>
           </div>
           <nav className="header-nav">
             <a href="#" className="nav-item active">Upload</a>
@@ -133,24 +140,63 @@ const UploadPage = () => {
         <div className="content-grid">
           <section className="intro-section">
             <div className="intro-wrapper">
-              <span className="section-badge">Network Performance Platform</span>
-              <h1 className="page-title">Upload Telecom Data</h1>
-              <p className="page-description">
-                Import network performance metrics to visualize KPIs, identify 
-                underperforming regions, and make data-driven decisions.
-              </p>
+              <div className="intro-header">
+                <span className="section-badge">Data Import</span>
+                <h1 className="page-title">Upload Network Performance Data</h1>
+                <p className="page-description">
+                  Import your CSV files to visualize key performance indicators, 
+                  monitor network health, and identify optimization opportunities 
+                  across your infrastructure.
+                </p>
+              </div>
+
               <div className="feature-grid">
-                <div className="feature-card">
-                  <span className="feature-label">Real-time monitoring</span>
+                <div className="feature-item">
+                  <div className="feature-check">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="3">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <div className="feature-content">
+                    <h4>Real-Time Monitoring</h4>
+                    <p>Track network performance metrics as they are uploaded</p>
+                  </div>
                 </div>
-                <div className="feature-card">
-                  <span className="feature-label">KPI dashboards</span>
+
+                <div className="feature-item">
+                  <div className="feature-check">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="3">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <div className="feature-content">
+                    <h4>KPI Dashboards</h4>
+                    <p>Visualize latency, throughput, and signal quality</p>
+                  </div>
                 </div>
-                <div className="feature-card">
-                  <span className="feature-label">Region comparison</span>
+
+                <div className="feature-item">
+                  <div className="feature-check">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="3">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <div className="feature-content">
+                    <h4>Region Comparison</h4>
+                    <p>Identify underperforming regions and base stations</p>
+                  </div>
                 </div>
-                <div className="feature-card">
-                  <span className="feature-label">Exportable reports</span>
+
+                <div className="feature-item">
+                  <div className="feature-check">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="3">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <div className="feature-content">
+                    <h4>Exportable Reports</h4>
+                    <p>Generate CSV and PDF reports for stakeholders</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -284,7 +330,7 @@ const UploadPage = () => {
 
       <footer className="app-footer">
         <div className="footer-container">
-          <span>© 2026 Telecom Analytics</span>
+          <span>© 2026 Network Analytics Platform</span>
           <span>Version 1.0.0</span>
         </div>
       </footer>
