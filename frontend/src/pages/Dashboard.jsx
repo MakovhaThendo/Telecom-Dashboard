@@ -1,7 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchData, fetchSummary } from '../services/api';
+import { Line, Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 import './Dashboard.css';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Dashboard = () => {
   const [data, setData] = useState([]);
@@ -63,6 +86,125 @@ const Dashboard = () => {
   };
 
   const kpiData = summary?.global || { avgLatency: 0, avgThroughput: 0, avgSignal: 0, count: 0 };
+  const regionData = summary?.regions || [];
+
+  // Prepare chart data
+  const prepareLineChartData = () => {
+    const sortedData = [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    const labels = sortedData.map(item => new Date(item.timestamp).toLocaleDateString());
+    const latencyData = sortedData.map(item => item.latencyMs);
+    const throughputData = sortedData.map(item => item.throughputMbps);
+
+    return {
+      labels: labels.slice(0, 20),
+      datasets: [
+        {
+          label: 'Latency (ms)',
+          data: latencyData.slice(0, 20),
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37, 99, 235, 0.1)',
+          fill: true,
+          tension: 0.4,
+        },
+        {
+          label: 'Throughput (Mbps)',
+          data: throughputData.slice(0, 20),
+          borderColor: '#16a34a',
+          backgroundColor: 'rgba(22, 163, 74, 0.1)',
+          fill: true,
+          tension: 0.4,
+        },
+      ],
+    };
+  };
+
+  const prepareBarChartData = () => {
+    const regions = regionData.map(item => item._id);
+    const avgLatency = regionData.map(item => item.avgLatency);
+    const avgThroughput = regionData.map(item => item.avgThroughput);
+
+    return {
+      labels: regions,
+      datasets: [
+        {
+          label: 'Avg Latency (ms)',
+          data: avgLatency,
+          backgroundColor: 'rgba(37, 99, 235, 0.7)',
+          borderColor: '#2563eb',
+          borderWidth: 1,
+        },
+        {
+          label: 'Avg Throughput (Mbps)',
+          data: avgThroughput,
+          backgroundColor: 'rgba(22, 163, 74, 0.7)',
+          borderColor: '#16a34a',
+          borderWidth: 1,
+        },
+      ],
+    };
+  };
+
+  const prepareSignalBarChart = () => {
+    const regions = regionData.map(item => item._id);
+    const avgSignal = regionData.map(item => item.avgSignal || 0);
+
+    return {
+      labels: regions,
+      datasets: [
+        {
+          label: 'Avg Signal (dBm)',
+          data: avgSignal,
+          backgroundColor: 'rgba(234, 179, 8, 0.7)',
+          borderColor: '#ca8a04',
+          borderWidth: 1,
+        },
+      ],
+    };
+  };
+
+  const lineChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Network Performance Trends',
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+  const barChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Regional Performance Comparison',
+      },
+    },
+  };
+
+  const signalChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Signal Quality by Region',
+      },
+    },
+  };
 
   const getKpiIcon = (type) => {
     if (type === 'latency') return (
@@ -179,6 +321,36 @@ const Dashboard = () => {
                 <span className="kpi-label">Total Records</span>
                 <span className="kpi-value">{kpiData.count}</span>
               </div>
+            </div>
+          </div>
+
+          <div className="charts-grid">
+            <div className="chart-card">
+              {data.length > 1 ? (
+                <Line data={prepareLineChartData()} options={lineChartOptions} />
+              ) : (
+                <div className="chart-placeholder">
+                  <p>Upload more data to see trends</p>
+                </div>
+              )}
+            </div>
+            <div className="chart-card">
+              {regionData.length > 0 ? (
+                <Bar data={prepareBarChartData()} options={barChartOptions} />
+              ) : (
+                <div className="chart-placeholder">
+                  <p>Upload data to see regional comparison</p>
+                </div>
+              )}
+            </div>
+            <div className="chart-card">
+              {regionData.length > 0 ? (
+                <Bar data={prepareSignalBarChart()} options={signalChartOptions} />
+              ) : (
+                <div className="chart-placeholder">
+                  <p>Upload data to see signal quality</p>
+                </div>
+              )}
             </div>
           </div>
 
