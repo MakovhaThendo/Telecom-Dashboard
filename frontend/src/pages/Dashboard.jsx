@@ -88,7 +88,6 @@ const Dashboard = () => {
   const kpiData = summary?.global || { avgLatency: 0, avgThroughput: 0, avgSignal: 0, count: 0 };
   const regionData = summary?.regions || [];
 
-  // Prepare chart data
   const prepareLineChartData = () => {
     const sortedData = [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
     const labels = sortedData.map(item => new Date(item.timestamp).toLocaleDateString());
@@ -148,15 +147,33 @@ const Dashboard = () => {
     const regions = regionData.map(item => item._id);
     const avgSignal = regionData.map(item => item.avgSignal || 0);
 
+    const sortedData = regions.map((region, index) => ({
+      region,
+      signal: avgSignal[index]
+    })).sort((a, b) => b.signal - a.signal);
+
     return {
-      labels: regions,
+      labels: sortedData.map(item => item.region),
       datasets: [
         {
-          label: 'Avg Signal (dBm)',
-          data: avgSignal,
-          backgroundColor: 'rgba(234, 179, 8, 0.7)',
-          borderColor: '#ca8a04',
-          borderWidth: 1,
+          label: 'Signal Strength (dBm)',
+          data: sortedData.map(item => item.signal),
+          backgroundColor: sortedData.map(item => {
+            if (item.signal > -55) return 'rgba(34, 197, 94, 0.7)';
+            if (item.signal > -60) return 'rgba(74, 222, 128, 0.7)';
+            if (item.signal > -65) return 'rgba(234, 179, 8, 0.7)';
+            if (item.signal > -70) return 'rgba(251, 146, 60, 0.7)';
+            return 'rgba(239, 68, 68, 0.7)';
+          }),
+          borderColor: sortedData.map(item => {
+            if (item.signal > -55) return '#22c55e';
+            if (item.signal > -60) return '#4ade80';
+            if (item.signal > -65) return '#eab308';
+            if (item.signal > -70) return '#fb923c';
+            return '#ef4444';
+          }),
+          borderWidth: 2,
+          borderRadius: 4,
         },
       ],
     };
@@ -198,10 +215,41 @@ const Dashboard = () => {
     plugins: {
       legend: {
         position: 'top',
+        labels: {
+          font: {
+            size: 12,
+          },
+        },
       },
       title: {
         display: true,
         text: 'Signal Quality by Region',
+        font: {
+          size: 14,
+          weight: 'bold',
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            return 'Signal: ' + context.parsed.y + ' dBm';
+          },
+        },
+      },
+    },
+    scales: {
+      y: {
+        min: -100,
+        max: -40,
+        ticks: {
+          stepSize: 10,
+          callback: function(value) {
+            return value + ' dBm';
+          },
+        },
+        grid: {
+          color: 'rgba(0, 0, 0, 0.05)',
+        },
       },
     },
   };
