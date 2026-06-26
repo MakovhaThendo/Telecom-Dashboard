@@ -413,42 +413,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Region Status Cards */}
-          {regionData.length > 0 && (
-            <div className="region-status-section">
-              <h3 className="region-status-title">Region Performance Status</h3>
-              <div className="region-status-grid">
-                {regionData.map((region, index) => {
-                  const status = getRegionStatus(region._id);
-                  return (
-                    <div key={index} className={`region-status-card ${status?.status || ''}`}>
-                      <div className="region-status-header">
-                        <span className="region-name">{region._id}</span>
-                        <span className="region-status-badge" style={{ backgroundColor: status?.color || '#6b7280' }}>
-                          {status?.label || 'Unknown'}
-                        </span>
-                      </div>
-                      <div className="region-status-metrics">
-                        <div className="region-metric">
-                          <span className="metric-label">Latency</span>
-                          <span className="metric-value">{region.avgLatency.toFixed(1)} ms</span>
-                        </div>
-                        <div className="region-metric">
-                          <span className="metric-label">Throughput</span>
-                          <span className="metric-value">{region.avgThroughput.toFixed(1)} Mbps</span>
-                        </div>
-                        <div className="region-metric">
-                          <span className="metric-label">Signal</span>
-                          <span className="metric-value">{(region.avgSignal || 0).toFixed(1)} dBm</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
           <div className="kpi-grid">
             <div className="kpi-card">
               <div className="kpi-icon latency">{getKpiIcon('latency')}</div>
@@ -496,6 +460,31 @@ const Dashboard = () => {
               ) : (
                 <div className="chart-placeholder">
                   <p>Upload data to see regional comparison</p>
+                </div>
+              )}
+            </div>
+            <div className="chart-card">
+              {regionData.length > 0 ? (
+                <div className="region-status-compact">
+                  <h4 className="compact-title">Region Performance</h4>
+                  {regionData.map((region, index) => {
+                    const status = getRegionStatus(region._id);
+                    return (
+                      <div key={index} className="compact-status-item">
+                        <span className="compact-region">{region._id}</span>
+                        <span className={`compact-badge ${status?.status || ''}`}>
+                          {status?.label || 'Unknown'}
+                        </span>
+                        <span className="compact-metrics">
+                          {region.avgLatency.toFixed(0)}ms / {region.avgThroughput.toFixed(0)}Mbps
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="chart-placeholder">
+                  <p>Upload data to see region status</p>
                 </div>
               )}
             </div>
