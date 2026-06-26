@@ -86,7 +86,7 @@ const Dashboard = () => {
     loadDashboard({});
   };
 
-  // Export CSV
+  // Export CSV - Fixed with proper formatting
   const exportCSV = () => {
     if (data.length === 0) {
       alert('No data to export');
@@ -98,17 +98,24 @@ const Dashboard = () => {
     try {
       const headers = ['Region', 'Base Station', 'Timestamp', 'Latency (ms)', 'Throughput (Mbps)', 'Signal (dBm)'];
       const rows = data.map(item => [
-        item.region,
-        item.baseStationId,
-        new Date(item.timestamp).toLocaleString(),
-        item.latencyMs,
-        item.throughputMbps,
-        item.signalStrengthDbm
+        item.region || '',
+        item.baseStationId || '',
+        new Date(item.timestamp).toLocaleString() || '',
+        item.latencyMs !== undefined ? item.latencyMs : '',
+        item.throughputMbps !== undefined ? item.throughputMbps : '',
+        item.signalStrengthDbm !== undefined ? item.signalStrengthDbm : ''
       ]);
 
-      let csvContent = headers.join(',') + '\n';
+      let csvContent = '\uFEFF';
+      csvContent += headers.join(',') + '\n';
       rows.forEach(row => {
-        csvContent += row.join(',') + '\n';
+        const escapedRow = row.map(cell => {
+          if (typeof cell === 'string' && cell.includes(',')) {
+            return `"${cell}"`;
+          }
+          return cell;
+        });
+        csvContent += escapedRow.join(',') + '\n';
       });
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -128,10 +135,144 @@ const Dashboard = () => {
     }
   };
 
+  // Export PDF
+  const exportPDF = async () => {
+    if (data.length === 0) {
+      alert('No data to export');
+      return;
+    }
+
+    setExporting(true);
+
+    try {
+      const { jsPDF } = await import('jspdf');
+      const html2canvas = await import('html2canvas');
+
+      const doc = new jsPDF('landscape', 'mm', 'a4');
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+
+      doc.setFontSize(18);
+      doc.setTextColor(10, 22, 40);
+      doc.text('Network Performance Report', pageWidth / 2, 20, { align: 'center' });
+      
+      doc.setFontSize(10);
+      doc.setTextColor(107, 114, 128);
+      doc.text(`Generated: ${new Date().toLocaleString()}`, pageWidth / 2, 28, { align: 'center' });
+
+      doc.setFontSize(12);
+      doc.setTextColor(10, 22, 40);
+      doc.text('KPI Summary', 14, 40);
+
+      const kpiRows = [
+        ['Metric', 'Value'],
+        ['Average Latency', `${summary?.global?.avgLatency?.toFixed(1) || 0} ms`],
+        ['Average Throughput', `${summary?.global?.avgThroughput?.toFixed(1) || 0} Mbps`],
+        ['Average Signal', `${summary?.global?.avgSignal?.toFixed(1) || 0} dBm`],
+        ['Total Records', `${summary?.global?.count || 0}`]
+      ];
+
+      let y = 48;
+      kpiRows.forEach((row, index) => {
+        doc.setFontSize(10);
+        doc.setTextColor(index === 0 ? 55 : 26, index === 0 ? 65 : 26, index === 0 ? 81 : 26);
+        doc.setFont('helvetica', index === 0 ? 'bold' : 'normal');
+        doc.text(row[0], 14, y);
+        doc.text(row[1], 60, y);
+        y += 7;
+      });
+
+      const chartCards = document.querySelectorAll('.chart-card');
+      let chartImages = [];
+
+      for (let i = 0; i < Math.min(chartCards.length, 4); i++) {
+        const canvas = await html2canvas.default(chartCards[i], {
+          scale: 1.5,
+          useCORS: true,
+          logging: false,
+        });
+        chartImages.push(canvas.toDataURL('image/png'));
+      }
+
+      const chartsPerRow = 2;
+      const chartWidth = (pageWidth - 40) / chartsPerRow;
+      const chartHeight = 65;
+
+      for (let i = 0; i < chartImages.length; i++) {
+        const col = i % chartsPerRow;
+        const row = Math.floor(i / chartsPerRow);
+        const x = 14 + col * (chartWidth + 10);
+        let yPos = 90 + row * (chartHeight + 15);
+
+        if (yPos + chartHeight > pageHeight - 20) {
+          doc.addPage();
+          yPos = 20;
+        }
+
+        doc.addImage(chartImages[i], 'PNG', x, yPos, chartWidth, chartHeight);
+      }
+
+      doc.addPage();
+      doc.setFontSize(12);
+      doc.setTextColor(10, 22, 40);
+      doc.text('Data Records', 14, 20);
+
+      const tableHeaders = ['Region', 'BS', 'Timestamp', 'Latency', 'Throughput', 'Signal'];
+      const tableData = data.slice(0, 30).map(item => [
+        item.region || '',
+        item.baseStationId || '',
+        new Date(item.timestamp).toLocaleDateString() || '',
+        item.latencyMs !== undefined ? item.latencyMs.toString() : '',
+        item.throughputMbps !== undefined ? item.throughputMbps.toString() : '',
+        item.signalStrengthDbm !== undefined ? item.signalStrengthDbm.toString() : ''
+      ]);
+
+      let tableY = 30;
+      const colWidths = [25, 20, 35, 25, 30, 25];
+
+      tableHeaders.forEach((header, i) => {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(55, 65, 81);
+        doc.text(header, 14 + colWidths.slice(0, i).reduce((a, b) => a + b, 0), tableY);
+      });
+
+      tableY += 6;
+
+      tableData.forEach((row) => {
+        if (tableY > pageHeight - 20) {
+          doc.addPage();
+          tableY = 20;
+          tableHeaders.forEach((header, i) => {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.setTextColor(55, 65, 81);
+            doc.text(header, 14 + colWidths.slice(0, i).reduce((a, b) => a + b, 0), tableY);
+          });
+          tableY += 6;
+        }
+
+        row.forEach((cell, i) => {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7);
+          doc.setTextColor(26, 26, 26);
+          doc.text(cell, 14 + colWidths.slice(0, i).reduce((a, b) => a + b, 0), tableY);
+        });
+        tableY += 5;
+      });
+
+      doc.save(`network_report_${new Date().toISOString().slice(0,10)}.pdf`);
+    } catch (error) {
+      console.error('PDF export error:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const kpiData = summary?.global || { avgLatency: 0, avgThroughput: 0, avgSignal: 0, count: 0 };
   const regionData = summary?.regions || [];
 
-  // Identify underperforming regions
   const getRegionStatus = (region) => {
     const regionInfo = regionData.find(r => r._id === region);
     if (!regionInfo) return null;
@@ -243,53 +384,25 @@ const Dashboard = () => {
   const lineChartOptions = {
     responsive: true,
     plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'Network Performance Trends',
-      },
+      legend: { position: 'top' },
+      title: { display: true, text: 'Network Performance Trends' },
     },
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
+    scales: { y: { beginAtZero: true } },
   };
 
   const barChartOptions = {
     responsive: true,
     plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'Regional Performance Comparison',
-      },
+      legend: { position: 'top' },
+      title: { display: true, text: 'Regional Performance Comparison' },
     },
   };
 
   const signalChartOptions = {
     responsive: true,
     plugins: {
-      legend: {
-        position: 'top',
-        labels: {
-          font: {
-            size: 12,
-          },
-        },
-      },
-      title: {
-        display: true,
-        text: 'Signal Quality by Region',
-        font: {
-          size: 14,
-          weight: 'bold',
-        },
-      },
+      legend: { position: 'top', labels: { font: { size: 12 } } },
+      title: { display: true, text: 'Signal Quality by Region', font: { size: 14, weight: 'bold' } },
       tooltip: {
         callbacks: {
           label: function(context) {
@@ -308,45 +421,45 @@ const Dashboard = () => {
             return value + ' dBm';
           },
         },
-        grid: {
-          color: 'rgba(0, 0, 0, 0.05)',
-        },
+        grid: { color: 'rgba(0, 0, 0, 0.05)' },
       },
     },
   };
 
   const getKpiIcon = (type) => {
-    if (type === 'latency') return (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
-        <circle cx="12" cy="12" r="10" />
-        <polyline points="12 6 12 12 16 14" />
-      </svg>
-    );
-    if (type === 'throughput') return (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2">
-        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-        <polyline points="17 6 23 6 23 12" />
-      </svg>
-    );
-    if (type === 'signal') return (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" strokeWidth="2">
-        <path d="M2 20l3-3" />
-        <path d="M6 16l3-3" />
-        <path d="M10 12l3-3" />
-        <path d="M14 8l3-3" />
-        <path d="M18 4l3-3" />
-      </svg>
-    );
-    if (type === 'records') return (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2">
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-        <polyline points="14 2 14 8 20 8" />
-        <line x1="16" y1="13" x2="8" y2="13" />
-        <line x1="16" y1="17" x2="8" y2="17" />
-        <polyline points="10 9 9 9 8 9" />
-      </svg>
-    );
-    return null;
+    const icons = {
+      latency: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      ),
+      throughput: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+          <polyline points="17 6 23 6 23 12" />
+        </svg>
+      ),
+      signal: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" strokeWidth="2">
+          <path d="M2 20l3-3" />
+          <path d="M6 16l3-3" />
+          <path d="M10 12l3-3" />
+          <path d="M14 8l3-3" />
+          <path d="M18 4l3-3" />
+        </svg>
+      ),
+      records: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+          <polyline points="10 9 9 9 8 9" />
+        </svg>
+      )
+    };
+    return icons[type] || null;
   };
 
   return (
@@ -379,13 +492,14 @@ const Dashboard = () => {
                 <h1 className="dashboard-title">Network Performance Dashboard</h1>
                 <p className="dashboard-subtitle">Real-time analytics and monitoring</p>
               </div>
-              <button 
-                className="export-btn" 
-                onClick={exportCSV} 
-                disabled={exporting || data.length === 0}
-              >
-                {exporting ? 'Exporting...' : 'Export CSV'}
-              </button>
+              <div className="export-actions">
+                <button className="export-btn" onClick={exportCSV} disabled={exporting || data.length === 0}>
+                  {exporting ? 'Exporting...' : 'Export CSV'}
+                </button>
+                <button className="export-btn pdf-btn" onClick={exportPDF} disabled={exporting || data.length === 0}>
+                  {exporting ? 'Generating...' : 'Export PDF'}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -449,52 +563,59 @@ const Dashboard = () => {
               {data.length > 1 ? (
                 <Line data={prepareLineChartData()} options={lineChartOptions} />
               ) : (
-                <div className="chart-placeholder">
-                  <p>Upload more data to see trends</p>
-                </div>
+                <div className="chart-placeholder"><p>Upload more data to see trends</p></div>
               )}
             </div>
             <div className="chart-card">
               {regionData.length > 0 ? (
                 <Bar data={prepareBarChartData()} options={barChartOptions} />
               ) : (
-                <div className="chart-placeholder">
-                  <p>Upload data to see regional comparison</p>
-                </div>
+                <div className="chart-placeholder"><p>Upload data to see regional comparison</p></div>
               )}
             </div>
             <div className="chart-card">
               {regionData.length > 0 ? (
-                <div className="region-status-compact">
-                  <h4 className="compact-title">Region Performance</h4>
-                  {regionData.map((region, index) => {
-                    const status = getRegionStatus(region._id);
-                    return (
-                      <div key={index} className="compact-status-item">
-                        <span className="compact-region">{region._id}</span>
-                        <span className={`compact-badge ${status?.status || ''}`}>
-                          {status?.label || 'Unknown'}
-                        </span>
-                        <span className="compact-metrics">
-                          {region.avgLatency.toFixed(0)}ms / {region.avgThroughput.toFixed(0)}Mbps
-                        </span>
-                      </div>
-                    );
-                  })}
+                <div className="region-table-container">
+                  <h4 className="region-table-title">Region Performance</h4>
+                  <table className="region-performance-table">
+                    <thead>
+                      <tr>
+                        <th>Region</th>
+                        <th>Status</th>
+                        <th>Latency (ms)</th>
+                        <th>Throughput (Mbps)</th>
+                        <th>Signal (dBm)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {regionData.map((region, index) => {
+                        const status = getRegionStatus(region._id);
+                        return (
+                          <tr key={index}>
+                            <td className="region-name-cell">{region._id}</td>
+                            <td>
+                              <span className={`status-badge ${status?.status || ''}`}>
+                                {status?.label || 'Unknown'}
+                              </span>
+                            </td>
+                            <td>{region.avgLatency.toFixed(1)}</td>
+                            <td>{region.avgThroughput.toFixed(1)}</td>
+                            <td>{(region.avgSignal || 0).toFixed(1)}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               ) : (
-                <div className="chart-placeholder">
-                  <p>Upload data to see region status</p>
-                </div>
+                <div className="chart-placeholder"><p>Upload data to see region status</p></div>
               )}
             </div>
             <div className="chart-card">
               {regionData.length > 0 ? (
                 <Bar data={prepareSignalBarChart()} options={signalChartOptions} />
               ) : (
-                <div className="chart-placeholder">
-                  <p>Upload data to see signal quality</p>
-                </div>
+                <div className="chart-placeholder"><p>Upload data to see signal quality</p></div>
               )}
             </div>
           </div>
