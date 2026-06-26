@@ -33,6 +33,7 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({ region: '', startDate: '', endDate: '' });
   const [regions, setRegions] = useState([]);
+  const [exporting, setExporting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -85,8 +86,68 @@ const Dashboard = () => {
     loadDashboard({});
   };
 
+  // Export CSV
+  const exportCSV = () => {
+    if (data.length === 0) {
+      alert('No data to export');
+      return;
+    }
+
+    setExporting(true);
+
+    try {
+      const headers = ['Region', 'Base Station', 'Timestamp', 'Latency (ms)', 'Throughput (Mbps)', 'Signal (dBm)'];
+      const rows = data.map(item => [
+        item.region,
+        item.baseStationId,
+        new Date(item.timestamp).toLocaleString(),
+        item.latencyMs,
+        item.throughputMbps,
+        item.signalStrengthDbm
+      ]);
+
+      let csvContent = headers.join(',') + '\n';
+      rows.forEach(row => {
+        csvContent += row.join(',') + '\n';
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `network_data_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export error:', err);
+      alert('Failed to export data');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const kpiData = summary?.global || { avgLatency: 0, avgThroughput: 0, avgSignal: 0, count: 0 };
   const regionData = summary?.regions || [];
+
+  // Identify underperforming regions
+  const getRegionStatus = (region) => {
+    const regionInfo = regionData.find(r => r._id === region);
+    if (!regionInfo) return null;
+
+    const isHighLatency = regionInfo.avgLatency > 60;
+    const isLowThroughput = regionInfo.avgThroughput < 100;
+    const isPoorSignal = (regionInfo.avgSignal || 0) < -70;
+
+    if (isHighLatency && isLowThroughput && isPoorSignal) {
+      return { status: 'critical', label: 'Critical', color: '#ef4444' };
+    } else if (isHighLatency || isLowThroughput || isPoorSignal) {
+      return { status: 'warning', label: 'Warning', color: '#f59e0b' };
+    } else {
+      return { status: 'good', label: 'Good', color: '#22c55e' };
+    }
+  };
 
   const prepareLineChartData = () => {
     const sortedData = [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
@@ -313,8 +374,19 @@ const Dashboard = () => {
       <main className="dashboard-main">
         <div className="dashboard-container">
           <div className="dashboard-header-section">
-            <h1 className="dashboard-title">Network Performance Dashboard</h1>
-            <p className="dashboard-subtitle">Real-time analytics and monitoring</p>
+            <div className="header-top">
+              <div>
+                <h1 className="dashboard-title">Network Performance Dashboard</h1>
+                <p className="dashboard-subtitle">Real-time analytics and monitoring</p>
+              </div>
+              <button 
+                className="export-btn" 
+                onClick={exportCSV} 
+                disabled={exporting || data.length === 0}
+              >
+                {exporting ? 'Exporting...' : 'Export CSV'}
+              </button>
+            </div>
           </div>
 
           <div className="filters-section">
@@ -340,6 +412,42 @@ const Dashboard = () => {
               <button className="filter-btn clear" onClick={clearFilters}>Clear</button>
             </div>
           </div>
+
+          {/* Region Status Cards */}
+          {regionData.length > 0 && (
+            <div className="region-status-section">
+              <h3 className="region-status-title">Region Performance Status</h3>
+              <div className="region-status-grid">
+                {regionData.map((region, index) => {
+                  const status = getRegionStatus(region._id);
+                  return (
+                    <div key={index} className={`region-status-card ${status?.status || ''}`}>
+                      <div className="region-status-header">
+                        <span className="region-name">{region._id}</span>
+                        <span className="region-status-badge" style={{ backgroundColor: status?.color || '#6b7280' }}>
+                          {status?.label || 'Unknown'}
+                        </span>
+                      </div>
+                      <div className="region-status-metrics">
+                        <div className="region-metric">
+                          <span className="metric-label">Latency</span>
+                          <span className="metric-value">{region.avgLatency.toFixed(1)} ms</span>
+                        </div>
+                        <div className="region-metric">
+                          <span className="metric-label">Throughput</span>
+                          <span className="metric-value">{region.avgThroughput.toFixed(1)} Mbps</span>
+                        </div>
+                        <div className="region-metric">
+                          <span className="metric-label">Signal</span>
+                          <span className="metric-value">{(region.avgSignal || 0).toFixed(1)} dBm</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div className="kpi-grid">
             <div className="kpi-card">
