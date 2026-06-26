@@ -17,7 +17,7 @@ exports.uploadCSV = async (req, res) => {
     const now = Date.now();
     
     if (lastUpload && (now - lastUpload < 5000)) {
-      console.log('⏳ Duplicate upload detected, skipping...');
+      console.log('Duplicate upload detected, skipping...');
       return res.status(200).json({ 
         message: 'Duplicate upload skipped', 
         count: 0 
@@ -25,12 +25,12 @@ exports.uploadCSV = async (req, res) => {
     }
     uploadHistory.set(fileKey, now);
 
-    console.log('📁 File received:', req.file.originalname);
-    console.log('📊 File size:', req.file.size);
+    console.log('File received:', req.file.originalname);
+    console.log('File size:', req.file.size);
 
     // Parse the CSV buffer
     const rows = await parseCSV(req.file.buffer);
-    console.log('📋 Parsed rows:', rows.length);
+    console.log('Parsed rows:', rows.length);
 
     if (rows.length === 0) {
       return res.status(400).json({ error: 'CSV file is empty or invalid' });
@@ -56,7 +56,7 @@ exports.uploadCSV = async (req, res) => {
       !isNaN(item.signalStrengthDbm)
     );
 
-    console.log(`✅ Valid rows to insert: ${validData.length} of ${mappedData.length}`);
+    console.log(`Valid rows to insert: ${validData.length} of ${mappedData.length}`);
 
     if (validData.length === 0) {
       return res.status(400).json({ 
@@ -66,17 +66,74 @@ exports.uploadCSV = async (req, res) => {
 
     // Insert into MongoDB
     const inserted = await NetworkData.insertMany(validData);
-    console.log(`✅ Inserted ${inserted.length} records`);
+    console.log(`Inserted ${inserted.length} records`);
 
     res.status(201).json({
       message: `Successfully uploaded ${inserted.length} records`,
       count: inserted.length
     });
   } catch (error) {
-    console.error('❌ Upload error:', error);
+    console.error('Upload error:', error);
     res.status(500).json({ 
       error: 'Failed to process CSV file',
       details: error.message 
     });
+  }
+};
+
+// Fetch all data with filters
+exports.getData = async (req, res) => {
+  try {
+    const { region, startDate, endDate } = req.query;
+    const filter = {};
+
+    if (region) filter.region = region;
+    if (startDate || endDate) {
+      filter.timestamp = {};
+      if (startDate) filter.timestamp.$gte = new Date(startDate);
+      if (endDate) filter.timestamp.$lte = new Date(endDate);
+    }
+
+    const data = await NetworkData.find(filter).sort({ timestamp: -1 });
+    res.json(data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get summary statistics
+exports.getSummary = async (req, res) => {
+  try {
+    const stats = await NetworkData.aggregate([
+      {
+        $group: {
+          _id: null,
+          avgLatency: { $avg: '$latencyMs' },
+          avgThroughput: { $avg: '$throughputMbps' },
+          avgSignal: { $avg: '$signalStrengthDbm' },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const regionStats = await NetworkData.aggregate([
+      {
+        $group: {
+          _id: '$region',
+          avgLatency: { $avg: '$latencyMs' },
+          avgThroughput: { $avg: '$throughputMbps' },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    res.json({
+      global: stats[0] || { avgLatency: 0, avgThroughput: 0, avgSignal: 0, count: 0 },
+      regions: regionStats
+    });
+  } catch (error) {
+    console.error('Summary error:', error);
+    res.status(500).json({ error: error.message });
   }
 };
