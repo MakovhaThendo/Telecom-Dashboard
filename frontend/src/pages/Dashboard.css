@@ -102,6 +102,52 @@
   margin: 0;
 }
 
+/* Header Top - Export Buttons */
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.export-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.export-btn {
+  padding: 0.5rem 1.5rem;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.export-btn:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+}
+
+.export-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.export-btn.pdf-btn {
+  background: #dc2626;
+}
+
+.export-btn.pdf-btn:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
 /* Filters */
 .filters-section {
   background: #ffffff;
@@ -275,6 +321,76 @@
   margin: 0;
 }
 
+/* Region Performance Table */
+.region-table-container {
+  width: 100%;
+  padding: 0.25rem;
+}
+
+.region-table-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0a1628;
+  margin: 0 0 0.75rem 0;
+  text-align: center;
+}
+
+.region-performance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.region-performance-table thead th {
+  background: #f9fafb;
+  padding: 0.5rem 0.5rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.region-performance-table tbody td {
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid #f3f4f6;
+  color: #1a1a1a;
+}
+
+.region-performance-table tbody tr:hover td {
+  background: #f9fafb;
+}
+
+.region-name-cell {
+  font-weight: 600;
+  color: #0a1628;
+}
+
+.status-badge {
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 0.15rem 0.6rem;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #ffffff;
+  display: inline-block;
+}
+
+.status-badge.good {
+  background: #22c55e;
+}
+
+.status-badge.warning {
+  background: #f59e0b;
+}
+
+.status-badge.critical {
+  background: #ef4444;
+}
+
 /* Table Section */
 .table-section {
   background: #ffffff;
@@ -433,6 +549,22 @@
     font-size: 1.5rem;
   }
 
+  .header-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .export-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .export-btn {
+    width: 100%;
+    text-align: center;
+  }
+
   .filters-section {
     flex-direction: column;
     align-items: stretch;
@@ -472,6 +604,15 @@
   .chart-card {
     padding: 1rem;
     min-height: 200px;
+  }
+
+  .region-performance-table {
+    font-size: 0.7rem;
+  }
+
+  .region-performance-table thead th,
+  .region-performance-table tbody td {
+    padding: 0.3rem 0.3rem;
   }
 
   .data-table th,
