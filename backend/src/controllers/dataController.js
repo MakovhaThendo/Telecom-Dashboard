@@ -11,7 +11,6 @@ exports.uploadCSV = async (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Check for duplicate upload (same file name and size within 5 seconds)
     const fileKey = `${req.file.originalname}-${req.file.size}`;
     const lastUpload = uploadHistory.get(fileKey);
     const now = Date.now();
@@ -28,7 +27,6 @@ exports.uploadCSV = async (req, res) => {
     console.log('File received:', req.file.originalname);
     console.log('File size:', req.file.size);
 
-    // Parse the CSV buffer
     const rows = await parseCSV(req.file.buffer);
     console.log('Parsed rows:', rows.length);
 
@@ -36,7 +34,6 @@ exports.uploadCSV = async (req, res) => {
       return res.status(400).json({ error: 'CSV file is empty or invalid' });
     }
 
-    // Map CSV columns to schema fields
     const mappedData = rows.map(row => ({
       region: row.region || row.Region,
       baseStationId: row.baseStationId || row.base_station_id || row.BaseStationId,
@@ -46,7 +43,6 @@ exports.uploadCSV = async (req, res) => {
       signalStrengthDbm: parseFloat(row.signalStrengthDbm || row.signal_strength_dbm || row.SignalStrength)
     }));
 
-    // Filter out rows with missing required fields
     const validData = mappedData.filter(item => 
       item.region && 
       item.baseStationId && 
@@ -64,7 +60,6 @@ exports.uploadCSV = async (req, res) => {
       });
     }
 
-    // Insert into MongoDB
     const inserted = await NetworkData.insertMany(validData);
     console.log(`Inserted ${inserted.length} records`);
 
@@ -81,9 +76,14 @@ exports.uploadCSV = async (req, res) => {
   }
 };
 
+// ============================================
+// ADD THESE FUNCTIONS - MAKE SURE THEY ARE HERE
+// ============================================
+
 // Fetch all data with filters
 exports.getData = async (req, res) => {
   try {
+    console.log('GET /api/data called');
     const { region, startDate, endDate } = req.query;
     const filter = {};
 
@@ -95,6 +95,7 @@ exports.getData = async (req, res) => {
     }
 
     const data = await NetworkData.find(filter).sort({ timestamp: -1 });
+    console.log(`Found ${data.length} records`);
     res.json(data);
   } catch (error) {
     console.error('Fetch error:', error);
@@ -105,6 +106,8 @@ exports.getData = async (req, res) => {
 // Get summary statistics
 exports.getSummary = async (req, res) => {
   try {
+    console.log('GET /api/data/summary called');
+    
     const stats = await NetworkData.aggregate([
       {
         $group: {
