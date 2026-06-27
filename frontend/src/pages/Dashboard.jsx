@@ -86,56 +86,7 @@ const Dashboard = () => {
     loadDashboard({});
   };
 
-  // Export CSV - Fixed with proper formatting
-  const exportCSV = () => {
-    if (data.length === 0) {
-      alert('No data to export');
-      return;
-    }
-
-    setExporting(true);
-
-    try {
-      const headers = ['Region', 'Base Station', 'Timestamp', 'Latency (ms)', 'Throughput (Mbps)', 'Signal (dBm)'];
-      const rows = data.map(item => [
-        item.region || '',
-        item.baseStationId || '',
-        new Date(item.timestamp).toLocaleString() || '',
-        item.latencyMs !== undefined ? item.latencyMs : '',
-        item.throughputMbps !== undefined ? item.throughputMbps : '',
-        item.signalStrengthDbm !== undefined ? item.signalStrengthDbm : ''
-      ]);
-
-      let csvContent = '\uFEFF';
-      csvContent += headers.join(',') + '\n';
-      rows.forEach(row => {
-        const escapedRow = row.map(cell => {
-          if (typeof cell === 'string' && cell.includes(',')) {
-            return `"${cell}"`;
-          }
-          return cell;
-        });
-        csvContent += escapedRow.join(',') + '\n';
-      });
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `network_data_${new Date().toISOString().slice(0,10)}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error('Export error:', err);
-      alert('Failed to export data');
-    } finally {
-      setExporting(false);
-    }
-  };
-
-  // Export PDF
+  // Export PDF only
   const exportPDF = async () => {
     if (data.length === 0) {
       alert('No data to export');
@@ -493,9 +444,6 @@ const Dashboard = () => {
                 <p className="dashboard-subtitle">Real-time analytics and monitoring</p>
               </div>
               <div className="export-actions">
-                <button className="export-btn" onClick={exportCSV} disabled={exporting || data.length === 0}>
-                  {exporting ? 'Exporting...' : 'Export CSV'}
-                </button>
                 <button className="export-btn pdf-btn" onClick={exportPDF} disabled={exporting || data.length === 0}>
                   {exporting ? 'Generating...' : 'Export PDF'}
                 </button>
